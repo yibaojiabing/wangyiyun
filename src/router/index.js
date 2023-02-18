@@ -1,6 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
-
+import songList from '../views/songList.vue'
+import Search from '../views/Search.vue'
+import Login from '../views/Login.vue'
+import InfoUser from '../views/InfoUser.vue'
+import store from '@/store/index.js'
 const routes = [
   {
     path: '/',
@@ -8,18 +12,47 @@ const routes = [
     component: Home
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-  }
+    path: '/songList',
+    name: 'songList',
+    component: songList
+  },
+  {
+    path: '/search',
+    name: 'Search',
+    component: Search
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/infouser',
+    name: 'InfoUser',
+    component: InfoUser,
+    // 路由独享守卫，未登录跳转登录页
+    beforeEnter:(to,from,next)=>{
+      if(store.state.isLogin || localStorage.getItem('token') || store.state.token){
+        next()
+      }else{
+        next('/login')
+      }
+    }
+  },
 ]
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes
 })
-
+//全局路由守卫
+router.beforeEach((to,from,next)=>{
+  if(to.path=='/login'){
+    store.state.isMusicBar=false
+    next()
+  }else{
+    store.state.isMusicBar=true
+    next()
+  }
+})
 export default router
